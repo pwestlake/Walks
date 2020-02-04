@@ -33,8 +33,6 @@ class GPSService : Service() {
     val path = LinkedHashSet<Trkpt>()
 
     private var velocity = floatArrayOf(0F, 0F) // m/s
-    private var sensorSpeed = 0F
-    private var velocityMeasuredAt = Date()
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
@@ -44,27 +42,6 @@ class GPSService : Service() {
         fastestInterval = 1000
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         smallestDisplacement = 10F
-    }
-
-    private val sensorListener = object : SensorEventListener {
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-            // Ignore
-        }
-
-        override fun onSensorChanged(event: SensorEvent?) {
-            val t = Date()
-            val interval = (t.time - velocityMeasuredAt.time) / 1000.0F
-            velocityMeasuredAt = t
-
-            val ax = event?.values?.get(0) ?: 0.0F
-            val ay = event?.values?.get(1) ?: 0.0F
-
-            velocity[0] = velocity[0] + (ax * interval)
-            velocity[1] = velocity[1] + (ay * interval)
-
-            sensorSpeed = Math.sqrt(Math.pow(velocity[0].toDouble(), 2.0)
-                + Math.pow(velocity[1].toDouble(), 2.0)).toFloat()
-        }
     }
 
     override fun onCreate() {
@@ -123,17 +100,11 @@ class GPSService : Service() {
         fusedLocationClient.requestLocationUpdates(locationRequest,
             locationCallback,
             Looper.getMainLooper())
-
-        startVelocityMeasurement()
     }
 
     private fun startVelocityMeasurement() {
         val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val sensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
-
-        sensor.also {
-                sensor -> sensorManager.registerListener(sensorListener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
-        }
     }
 
     fun pauseTracking(): Unit {
@@ -144,10 +115,6 @@ class GPSService : Service() {
     private fun stopVelocityMeasureMent() {
         val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val sensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
-
-        sensor.also {
-                sensor -> sensorManager.unregisterListener(sensorListener)
-        }
     }
 
     private fun stopLocationClient() {
