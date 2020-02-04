@@ -1,0 +1,23 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="reply_entries">
+        <item>Reply</item>
+        <item>Reply to all</item>
+    </string-array>
+
+    <string-array name="reply_values">
+        <item>reply</item>
+        <item>reply_all</item>
+    </string-array>
+
+    <!-- Distance Units -->
+    <string-array name="distance_units_entries">
+        <item>Miles</item>
+        <item>Kilometers</item>
+    </string-array>
+
+    <string-array name="distance_units_values">
+        <item>miles</item>
+        <item>kilometers</item>
+    </string-array>
+</resources>
